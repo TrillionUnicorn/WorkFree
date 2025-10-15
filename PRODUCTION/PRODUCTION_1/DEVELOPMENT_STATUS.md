@@ -75,36 +75,36 @@
 
 ## 🚧 IN PROGRESS
 
-### Phase 7: Quest Details & Interaction (30%)
+### Phase 7: Quest Details & Interaction (100%)
 - [x] Quest page route structure
-- [ ] Individual quest page UI
-- [ ] Quest content rendering
-- [ ] Start quest functionality
-- [ ] Progress tracking
-- [ ] Quest completion
-- [ ] XP reward distribution
-- [ ] Achievement unlocking
+- [x] Individual quest page UI
+- [x] Quest content rendering
+- [x] Start quest functionality
+- [x] Progress tracking
+- [x] Quest completion
+- [x] XP reward distribution
+- [x] Step-by-step navigation
+
+### Phase 8: Achievement System (100%)
+- [x] Achievement listing page
+- [x] Achievement cards with progress
+- [x] Rarity system (common, rare, epic, legendary)
+- [x] Achievement criteria checking
+- [x] Progress calculation
+- [x] Unlock status display
+- [x] Filtering by rarity
+
+### Phase 9: Leaderboard (100%)
+- [x] Global leaderboard
+- [x] User ranking with XP
+- [x] Top 3 podium display
+- [x] Full leaderboard table
+- [x] Current user highlighting
+- [x] Stats display (XP, quests, score, time)
 
 ---
 
 ## ⏳ PENDING FEATURES
-
-### Phase 8: Achievement System (0%)
-- [ ] Achievement listing page
-- [ ] Achievement cards
-- [ ] Unlock animations
-- [ ] Rarity system
-- [ ] Achievement criteria checking
-- [ ] Automatic unlocking
-- [ ] Notification system
-
-### Phase 9: Leaderboard (0%)
-- [ ] Global leaderboard
-- [ ] Category leaderboards
-- [ ] User ranking
-- [ ] XP sorting
-- [ ] Pagination
-- [ ] User profiles
 
 ### Phase 10: User Profile (0%)
 - [ ] Profile page
@@ -200,10 +200,9 @@
 - **Testing:** 0%
 
 ### Overall Completion
-- **Phase 1-6:** 100% ✅
-- **Phase 7:** 30% 🚧
-- **Phase 8-18:** 0% ⏳
-- **Total:** ~40%
+- **Phase 1-9:** 100% ✅
+- **Phase 10-18:** 0% ⏳
+- **Total:** ~60%
 
 ---
 
