@@ -7,16 +7,21 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "build:prod": "NODE_ENV=production vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "playwright test",
     "test:unit": "vitest",
+    "test:coverage": "vitest --coverage",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "bun run src/lib/server/db/seed.ts"
+    "db:seed": "bun run src/lib/server/db/seed.ts",
+    "db:optimize": "bun run src/lib/server/db/optimize.ts",
+    "deploy": "bun run build:prod && wrangler pages deploy build",
+    "deploy:staging": "bun run build:prod && wrangler pages deploy build --branch=staging"
   },
   "dependencies": {
     "@sveltejs/kit": "^2.0.0",
