@@ -1,0 +1,12 @@
+{
+	"/": [],
+	"/api/contact": [
+		"src/routes/api/contact/+server.ts"
+	],
+	"/api/waitlist": [
+		"src/routes/api/waitlist/+server.ts"
+	],
+	"/contact": [],
+	"/pitch": [],
+	"/product": []
+}

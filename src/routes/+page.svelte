@@ -1,409 +1,469 @@
 <script lang="ts">
-	let selectedRole = $state('developer');
-	let currentTask = $state<any>(null);
-	let taskProgress = $state(0);
+	import { onMount } from 'svelte';
+	import gsap from 'gsap';
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
+	import Button from '$lib/components/Button.svelte';
+	import Card from '$lib/components/Card.svelte';
+	import Input from '$lib/components/Input.svelte';
 
-	const roles = [
-		{ id: 'developer', name: 'Software Developer', icon: '💻', tasks: 45 },
-		{ id: 'designer', name: 'UI/UX Designer', icon: '🎨', tasks: 32 },
-		{ id: 'manager', name: 'Project Manager', icon: '📊', tasks: 28 },
-		{ id: 'marketer', name: 'Digital Marketer', icon: '📈', tasks: 38 }
+	if (typeof window !== 'undefined') {
+		gsap.registerPlugin(ScrollTrigger);
+	}
+
+	let email = $state('');
+	let isSubmitting = $state(false);
+	let submitMessage = $state('');
+
+	const features = [
+		{
+			icon: '🥽',
+			title: 'Immersive VR/AR Training',
+			description: 'Full immersion in 3D training environments with photorealistic graphics and spatial audio.'
+		},
+		{
+			icon: '🤖',
+			title: 'AI-Powered Personalization',
+			description: 'Adaptive learning paths that adjust difficulty based on your performance in real-time.'
+		},
+		{
+			icon: '🎯',
+			title: 'Risk-Free Practice',
+			description: 'Practice dangerous scenarios safely without real-world consequences or expensive equipment.'
+		},
+		{
+			icon: '📊',
+			title: 'Deep Analytics',
+			description: 'Track progress, identify knowledge gaps, and measure training effectiveness with precision.'
+		},
+		{
+			icon: '🏆',
+			title: '90% Retention Rate',
+			description: 'Achieve 3x better knowledge retention compared to traditional training methods.'
+		},
+		{
+			icon: '💰',
+			title: '70% Cost Savings',
+			description: 'Reduce training costs dramatically while improving outcomes and safety.'
+		}
 	];
 
-	const sampleTasks = {
-		developer: {
-			title: 'Build a React Component Library',
-			description: 'Create reusable UI components with TypeScript and Storybook documentation.',
-			skills: ['React', 'TypeScript', 'CSS', 'Testing'],
-			duration: '2-3 hours',
-			difficulty: 'Intermediate'
+	const howItWorks = [
+		{
+			step: '1',
+			title: 'Choose Your Training',
+			description: 'Select from 500+ pre-built simulations or create custom scenarios for your specific needs.',
+			icon: '🎮'
 		},
-		designer: {
-			title: 'Design a Mobile App Interface',
-			description: 'Create wireframes and high-fidelity mockups for a fitness tracking app.',
-			skills: ['Figma', 'UI Design', 'Mobile UX', 'Prototyping'],
-			duration: '3-4 hours',
-			difficulty: 'Intermediate'
+		{
+			step: '2',
+			title: 'Immerse & Learn',
+			description: 'Put on your VR headset and experience realistic training with AI coaching and haptic feedback.',
+			icon: '🥽'
 		},
-		manager: {
-			title: 'Plan a Product Launch',
-			description: 'Create project timeline, resource allocation, and risk management plan.',
-			skills: ['Project Planning', 'Risk Management', 'Team Coordination', 'Agile'],
-			duration: '2-3 hours',
-			difficulty: 'Advanced'
-		},
-		marketer: {
-			title: 'Create a Social Media Campaign',
-			description: 'Develop content strategy and campaign materials for a product launch.',
-			skills: ['Content Strategy', 'Social Media', 'Analytics', 'Copywriting'],
-			duration: '2-3 hours',
-			difficulty: 'Intermediate'
+		{
+			step: '3',
+			title: 'Track & Improve',
+			description: 'Review detailed analytics, get personalized recommendations, and continuously improve your skills.',
+			icon: '📈'
 		}
-	};
+	];
 
-	function startTask() {
-		currentTask = sampleTasks[selectedRole as keyof typeof sampleTasks];
-		taskProgress = 0;
+	const pricingTiers = [
+		{
+			name: 'Starter',
+			price: '$49',
+			originalPrice: '$99',
+			period: '/month',
+			description: 'Perfect for small teams and pilot programs',
+			features: [
+				'50+ pre-built scenarios',
+				'Up to 25 users',
+				'Basic VR support',
+				'Progress tracking',
+				'Email support'
+			],
+			cta: 'Start Free Trial',
+			popular: false
+		},
+		{
+			name: 'Professional',
+			price: '$249',
+			originalPrice: '$499',
+			period: '/month',
+			description: 'For growing teams and departments',
+			features: [
+				'Everything in Starter',
+				'Custom scenarios',
+				'Up to 500 users',
+				'Advanced VR/AR support',
+				'AI personalization',
+				'Advanced analytics',
+				'Priority support'
+			],
+			cta: 'Start Free Trial',
+			popular: true
+		},
+		{
+			name: 'Enterprise',
+			price: '$1,499',
+			originalPrice: '$2,999',
+			period: '/month',
+			description: 'For large organizations',
+			features: [
+				'Everything in Professional',
+				'Unlimited users',
+				'White-label platform',
+				'API integration',
+				'Custom development',
+				'Dedicated success manager',
+				'On-site training'
+			],
+			cta: 'Contact Sales',
+			popular: false
+		}
+	];
 
-		// Simulate task progress
-		const interval = setInterval(() => {
-			taskProgress += Math.random() * 10;
-			if (taskProgress >= 100) {
-				taskProgress = 100;
-				clearInterval(interval);
+	async function handleWaitlistSubmit(e: Event) {
+		e.preventDefault();
+		if (!email) return;
+
+		isSubmitting = true;
+		submitMessage = '';
+
+		try {
+			const response = await fetch('/api/waitlist', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email })
+			});
+
+			if (response.ok) {
+				submitMessage = '🎉 Success! You\'re on the waitlist. Check your email for next steps.';
+				email = '';
+			} else {
+				submitMessage = '❌ Something went wrong. Please try again.';
 			}
-		}, 500);
+		} catch (error) {
+			submitMessage = '❌ Network error. Please try again.';
+		} finally {
+			isSubmitting = false;
+		}
 	}
+
+	onMount(() => {
+		// Parallax effect for hero background
+		gsap.to('.hero-bg', {
+			yPercent: 50,
+			ease: 'none',
+			scrollTrigger: {
+				trigger: '.hero-section',
+				start: 'top top',
+				end: 'bottom top',
+				scrub: true
+			}
+		});
+
+		// Fade in animations for sections
+		gsap.utils.toArray('.fade-in-section').forEach((section: any) => {
+			gsap.from(section, {
+				opacity: 0,
+				y: 50,
+				duration: 1,
+				scrollTrigger: {
+					trigger: section,
+					start: 'top 80%',
+					end: 'top 50%',
+					scrub: 1
+				}
+			});
+		});
+
+		// Stagger animation for feature cards
+		gsap.from('.feature-card', {
+			opacity: 0,
+			y: 30,
+			stagger: 0.1,
+			duration: 0.8,
+			scrollTrigger: {
+				trigger: '.features-grid',
+				start: 'top 80%'
+			}
+		});
+	});
 </script>
 
 <svelte:head>
-	<title>WorkFree - Immersive Training Platform</title>
+	<title>WorkFree - Immersive VR/AR Training Platform | Transform Workplace Learning</title>
+	<meta name="description" content="Revolutionary VR/AR training platform with AI-powered personalization. Reduce training costs by 70% while improving retention by 400%. Join 1,000+ companies transforming workplace learning." />
 </svelte:head>
 
-<div class="platform">
-	<header class="hero">
-		<h1>🎯 WorkFree</h1>
-		<p>Immersive Training & Skills Assessment Platform</p>
-		<div class="hero-subtitle">
-			Replace traditional CVs with real skill demonstrations
-		</div>
-	</header>
+<!-- Hero Section -->
+<section class="hero-section relative min-h-screen flex items-center justify-center overflow-hidden">
+	<!-- Parallax Background -->
+	<div class="hero-bg absolute inset-0 -z-10">
+		<div class="absolute inset-0 bg-gradient-to-br from-primary-900/20 via-secondary-900/20 to-accent-900/20"></div>
+		<div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1920')] bg-cover bg-center opacity-20"></div>
+	</div>
 
-	<div class="role-selector">
-		<h2>Choose Your Career Path</h2>
-		<div class="roles-grid">
-			{#each roles as role}
-				<button
-					class="role-card {selectedRole === role.id ? 'selected' : ''}"
-					onclick={() => selectedRole = role.id}
-				>
-					<div class="role-icon">{role.icon}</div>
-					<div class="role-name">{role.name}</div>
-					<div class="role-tasks">{role.tasks} tasks available</div>
-				</button>
-			{/each}
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center relative z-10">
+		<div class="animate-float">
+			<h1 class="text-5xl md:text-7xl font-bold mb-6">
+				<span class="text-gradient">Transform Training</span>
+				<br />
+				with VR & AI
+			</h1>
+		</div>
+
+		<p class="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
+			The world's most advanced training simulation platform. Reduce costs by 70% while improving retention by 400%.
+		</p>
+
+		<div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+			<Button variant="primary" size="lg">
+				Start Free Trial
+			</Button>
+			<Button variant="outline" size="lg">
+				Watch Demo
+			</Button>
+		</div>
+
+		<!-- Trust Indicators -->
+		<div class="flex flex-wrap justify-center gap-6 text-sm text-slate-400">
+			<div class="flex items-center gap-2">
+				<span class="text-green-400">✓</span>
+				<span>1,000+ Companies</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<span class="text-green-400">✓</span>
+				<span>500+ Simulations</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<span class="text-green-400">✓</span>
+				<span>90% Retention Rate</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<span class="text-green-400">✓</span>
+				<span>SOC 2 Certified</span>
+			</div>
 		</div>
 	</div>
 
-	{#if !currentTask}
-		<div class="task-preview">
-			<h2>Next Challenge</h2>
-			<div class="preview-card">
-				<h3>{sampleTasks[selectedRole as keyof typeof sampleTasks].title}</h3>
-				<p>{sampleTasks[selectedRole as keyof typeof sampleTasks].description}</p>
+	<!-- Scroll Indicator -->
+	<div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+		<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+		</svg>
+	</div>
+</section>
 
-				<div class="task-meta">
-					<div class="meta-item">
-						<span class="meta-label">Duration:</span>
-						<span class="meta-value">{sampleTasks[selectedRole as keyof typeof sampleTasks].duration}</span>
-					</div>
-					<div class="meta-item">
-						<span class="meta-label">Difficulty:</span>
-						<span class="meta-value">{sampleTasks[selectedRole as keyof typeof sampleTasks].difficulty}</span>
-					</div>
+<!-- Why Us Section -->
+<section class="fade-in-section py-20 bg-slate-900/50">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<div class="text-center mb-16">
+			<h2 class="text-4xl md:text-5xl font-bold mb-4">
+				Why Choose <span class="text-gradient">WorkFree</span>?
+			</h2>
+			<p class="text-xl text-slate-300 max-w-3xl mx-auto">
+				We're not just another training platform. We're revolutionizing how the world learns.
+			</p>
+		</div>
+
+		<div class="features-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+			{#each features as feature}
+				<Card class="feature-card" hover={true}>
+					<div class="text-5xl mb-4">{feature.icon}</div>
+					<h3 class="text-2xl font-bold mb-3">{feature.title}</h3>
+					<p class="text-slate-300">{feature.description}</p>
+				</Card>
+			{/each}
+		</div>
+	</div>
+</section>
+
+<!-- How It Works Section -->
+<section class="fade-in-section py-20">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<div class="text-center mb-16">
+			<h2 class="text-4xl md:text-5xl font-bold mb-4">
+				How It <span class="text-gradient">Works</span>
+			</h2>
+			<p class="text-xl text-slate-300 max-w-3xl mx-auto">
+				Get started in minutes with our simple 3-step process
+			</p>
+		</div>
+
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+			{#each howItWorks as step}
+				<div class="relative">
+					<Card hover={true}>
+						<div class="text-6xl mb-4">{step.icon}</div>
+						<div class="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-2xl font-bold shadow-glow">
+							{step.step}
+						</div>
+						<h3 class="text-2xl font-bold mb-3">{step.title}</h3>
+						<p class="text-slate-300">{step.description}</p>
+					</Card>
 				</div>
+			{/each}
+		</div>
+	</div>
+</section>
 
-				<div class="skills-required">
-					<h4>Skills Required:</h4>
-					<div class="skills-list">
-						{#each sampleTasks[selectedRole as keyof typeof sampleTasks].skills as skill}
-							<span class="skill-tag">{skill}</span>
-						{/each}
-					</div>
-				</div>
-
-				<button class="start-btn" onclick={startTask}>Start Challenge</button>
+<!-- Pricing Section -->
+<section id="pricing" class="fade-in-section py-20 bg-slate-900/50">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<div class="text-center mb-16">
+			<h2 class="text-4xl md:text-5xl font-bold mb-4">
+				Simple, <span class="text-gradient">Transparent</span> Pricing
+			</h2>
+			<p class="text-xl text-slate-300 max-w-3xl mx-auto mb-4">
+				50% off for early adopters. Limited time offer!
+			</p>
+			<div class="inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-sm font-semibold">
+				<span>🎉</span>
+				<span>Early Bird Pricing Active</span>
 			</div>
 		</div>
-	{:else}
-		<div class="task-simulation">
-			<h2>🚀 Task in Progress</h2>
-			<div class="simulation-card">
-				<h3>{currentTask.title}</h3>
-				<div class="progress-section">
-					<div class="progress-label">Progress: {Math.round(taskProgress)}%</div>
-					<div class="progress-bar">
-						<div class="progress-fill" style="width: {taskProgress}%"></div>
-					</div>
-				</div>
 
-				{#if taskProgress >= 100}
-					<div class="completion-message">
-						<div class="completion-icon">🎉</div>
-						<div class="completion-text">Task Completed!</div>
-						<div class="completion-score">Score: 87/100</div>
-						<button class="next-btn" onclick={() => currentTask = null}>Next Challenge</button>
-					</div>
-				{:else}
-					<div class="simulation-content">
-						<p>Simulating real work environment...</p>
-						<div class="simulation-steps">
-							<div class="step {taskProgress > 20 ? 'completed' : 'active'}">📋 Planning</div>
-							<div class="step {taskProgress > 50 ? 'completed' : taskProgress > 20 ? 'active' : ''}">⚙️ Implementation</div>
-							<div class="step {taskProgress > 80 ? 'completed' : taskProgress > 50 ? 'active' : ''}">🧪 Testing</div>
-							<div class="step {taskProgress > 95 ? 'completed' : taskProgress > 80 ? 'active' : ''}">✅ Review</div>
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+			{#each pricingTiers as tier}
+				<Card class="relative {tier.popular ? 'ring-2 ring-primary-500 shadow-glow-lg' : ''}" hover={true}>
+					{#if tier.popular}
+						<div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+							Most Popular
+						</div>
+					{/if}
+
+					<div class="text-center mb-6">
+						<h3 class="text-2xl font-bold mb-2">{tier.name}</h3>
+						<p class="text-slate-400 text-sm mb-4">{tier.description}</p>
+						<div class="flex items-baseline justify-center gap-2">
+							<span class="text-slate-500 line-through text-xl">{tier.originalPrice}</span>
+							<span class="text-5xl font-bold text-gradient">{tier.price}</span>
+							<span class="text-slate-400">{tier.period}</span>
 						</div>
 					</div>
-				{/if}
+
+					<ul class="space-y-3 mb-8">
+						{#each tier.features as feature}
+							<li class="flex items-start gap-2">
+								<span class="text-green-400 mt-1">✓</span>
+								<span class="text-slate-300">{feature}</span>
+							</li>
+						{/each}
+					</ul>
+
+					<Button variant={tier.popular ? 'primary' : 'outline'} size="lg" class="w-full">
+						{tier.cta}
+					</Button>
+				</Card>
+			{/each}
+		</div>
+	</div>
+</section>
+
+<!-- Mission & Vision Section -->
+<section id="mission" class="fade-in-section py-20">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+			<div>
+				<h2 class="text-4xl md:text-5xl font-bold mb-6">
+					Our <span class="text-gradient">Mission</span>
+				</h2>
+				<p class="text-xl text-slate-300 mb-6">
+					To make dangerous jobs safer and complex skills accessible to everyone through immersive VR/AR training.
+				</p>
+				<p class="text-lg text-slate-400 mb-8">
+					We believe that everyone deserves access to world-class training without the risks, costs, or limitations of traditional methods. Our platform democratizes expertise and makes learning engaging, effective, and safe.
+				</p>
+
+				<h3 class="text-3xl font-bold mb-4">
+					Our <span class="text-gradient">Vision</span>
+				</h3>
+				<p class="text-lg text-slate-400 mb-6">
+					A world where anyone can master any skill safely and affordably, where workplace accidents are eliminated through perfect practice, and where learning is so engaging that it feels like play.
+				</p>
+
+				<div class="grid grid-cols-2 gap-6">
+					<div class="bg-glass p-4 rounded-lg">
+						<div class="text-3xl font-bold text-gradient mb-1">$366B</div>
+						<div class="text-sm text-slate-400">Training Market</div>
+					</div>
+					<div class="bg-glass p-4 rounded-lg">
+						<div class="text-3xl font-bold text-gradient mb-1">2.8B</div>
+						<div class="text-sm text-slate-400">Employees Worldwide</div>
+					</div>
+					<div class="bg-glass p-4 rounded-lg">
+						<div class="text-3xl font-bold text-gradient mb-1">70%</div>
+						<div class="text-sm text-slate-400">Cost Reduction</div>
+					</div>
+					<div class="bg-glass p-4 rounded-lg">
+						<div class="text-3xl font-bold text-gradient mb-1">400%</div>
+						<div class="text-sm text-slate-400">Better Retention</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="relative">
+				<div class="bg-glass p-8 rounded-2xl">
+					<div class="aspect-video bg-gradient-to-br from-primary-900/50 to-secondary-900/50 rounded-lg flex items-center justify-center">
+						<div class="text-center">
+							<div class="text-6xl mb-4">🎯</div>
+							<p class="text-xl font-semibold">Mission-Driven Innovation</p>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-	{/if}
-</div>
+	</div>
+</section>
 
-<style>
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		color: white;
-		min-height: 100vh;
-	}
+<!-- Waitlist Section -->
+<section class="fade-in-section py-20 bg-slate-900/50">
+	<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+		<Card class="text-center">
+			<h2 class="text-4xl md:text-5xl font-bold mb-4">
+				Join the <span class="text-gradient">Waitlist</span>
+			</h2>
+			<p class="text-xl text-slate-300 mb-8">
+				Be among the first to experience the future of workplace training. Get early access and exclusive pricing.
+			</p>
 
-	.platform {
-		max-width: 1000px;
-		margin: 0 auto;
-		padding: 2rem;
-	}
+			<form onsubmit={handleWaitlistSubmit} class="max-w-md mx-auto">
+				<div class="flex flex-col sm:flex-row gap-4">
+					<Input
+						type="email"
+						placeholder="Enter your email"
+						bind:value={email}
+						required
+						class="flex-1"
+					/>
+					<Button type="submit" variant="primary" size="lg" loading={isSubmitting}>
+						{isSubmitting ? 'Joining...' : 'Join Waitlist'}
+					</Button>
+				</div>
+				{#if submitMessage}
+					<p class="mt-4 text-sm {submitMessage.includes('Success') ? 'text-green-400' : 'text-red-400'}">
+						{submitMessage}
+					</p>
+				{/if}
+			</form>
 
-	.hero {
-		text-align: center;
-		margin-bottom: 3rem;
-	}
+			<div class="mt-8 flex flex-wrap justify-center gap-6 text-sm text-slate-400">
+				<div class="flex items-center gap-2">
+					<span>🔒</span>
+					<span>No spam, ever</span>
+				</div>
+				<div class="flex items-center gap-2">
+					<span>🎁</span>
+					<span>Exclusive early access</span>
+				</div>
+				<div class="flex items-center gap-2">
+					<span>💰</span>
+					<span>Special pricing</span>
+				</div>
+			</div>
+		</Card>
+	</div>
+</section>
 
-	.hero h1 {
-		font-size: 3rem;
-		margin-bottom: 0.5rem;
-	}
-
-	.hero p {
-		font-size: 1.25rem;
-		margin-bottom: 0.5rem;
-		opacity: 0.9;
-	}
-
-	.hero-subtitle {
-		font-size: 1rem;
-		opacity: 0.7;
-	}
-
-	.role-selector h2,
-	.task-preview h2,
-	.task-simulation h2 {
-		margin-bottom: 1.5rem;
-		font-size: 1.5rem;
-		text-align: center;
-	}
-
-	.roles-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
-
-	.role-card {
-		background: rgba(255, 255, 255, 0.1);
-		border: 2px solid rgba(255, 255, 255, 0.2);
-		border-radius: 1rem;
-		padding: 1.5rem;
-		cursor: pointer;
-		transition: all 0.3s;
-		text-align: center;
-		color: white;
-	}
-
-	.role-card:hover {
-		background: rgba(255, 255, 255, 0.2);
-		transform: translateY(-2px);
-	}
-
-	.role-card.selected {
-		border-color: #60a5fa;
-		background: rgba(96, 165, 250, 0.2);
-	}
-
-	.role-icon {
-		font-size: 2.5rem;
-		margin-bottom: 0.5rem;
-	}
-
-	.role-name {
-		font-size: 1.1rem;
-		font-weight: 600;
-		margin-bottom: 0.5rem;
-	}
-
-	.role-tasks {
-		font-size: 0.9rem;
-		opacity: 0.8;
-	}
-
-	.preview-card,
-	.simulation-card {
-		background: rgba(255, 255, 255, 0.1);
-		border-radius: 1rem;
-		padding: 2rem;
-		backdrop-filter: blur(10px);
-	}
-
-	.preview-card h3,
-	.simulation-card h3 {
-		font-size: 1.5rem;
-		margin-bottom: 1rem;
-	}
-
-	.preview-card p {
-		opacity: 0.9;
-		line-height: 1.6;
-		margin-bottom: 1.5rem;
-	}
-
-	.task-meta {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.meta-item {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.meta-label {
-		opacity: 0.8;
-	}
-
-	.meta-value {
-		font-weight: 600;
-	}
-
-	.skills-required h4 {
-		margin-bottom: 0.75rem;
-		font-size: 1rem;
-	}
-
-	.skills-list {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		margin-bottom: 2rem;
-	}
-
-	.skill-tag {
-		background: rgba(96, 165, 250, 0.3);
-		padding: 0.25rem 0.75rem;
-		border-radius: 9999px;
-		font-size: 0.875rem;
-		font-weight: 500;
-	}
-
-	.start-btn,
-	.next-btn {
-		background: #10b981;
-		color: white;
-		border: none;
-		padding: 1rem 2rem;
-		font-size: 1.125rem;
-		font-weight: 600;
-		border-radius: 0.75rem;
-		cursor: pointer;
-		transition: background-color 0.2s;
-		width: 100%;
-	}
-
-	.start-btn:hover,
-	.next-btn:hover {
-		background: #059669;
-	}
-
-	.progress-section {
-		margin-bottom: 2rem;
-	}
-
-	.progress-label {
-		margin-bottom: 0.5rem;
-		font-weight: 600;
-	}
-
-	.progress-bar {
-		background: rgba(255, 255, 255, 0.2);
-		border-radius: 9999px;
-		height: 0.75rem;
-		overflow: hidden;
-	}
-
-	.progress-fill {
-		background: #10b981;
-		height: 100%;
-		transition: width 0.3s ease;
-	}
-
-	.completion-message {
-		text-align: center;
-	}
-
-	.completion-icon {
-		font-size: 3rem;
-		margin-bottom: 1rem;
-	}
-
-	.completion-text {
-		font-size: 1.5rem;
-		font-weight: 600;
-		margin-bottom: 0.5rem;
-	}
-
-	.completion-score {
-		font-size: 1.25rem;
-		color: #60a5fa;
-		margin-bottom: 2rem;
-	}
-
-	.simulation-content p {
-		text-align: center;
-		opacity: 0.9;
-		margin-bottom: 2rem;
-	}
-
-	.simulation-steps {
-		display: flex;
-		justify-content: space-between;
-		gap: 1rem;
-	}
-
-	.step {
-		flex: 1;
-		text-align: center;
-		padding: 1rem;
-		border-radius: 0.5rem;
-		background: rgba(255, 255, 255, 0.1);
-		opacity: 0.5;
-		transition: all 0.3s;
-	}
-
-	.step.active {
-		opacity: 1;
-		background: rgba(96, 165, 250, 0.3);
-	}
-
-	.step.completed {
-		opacity: 1;
-		background: rgba(16, 185, 129, 0.3);
-	}
-
-	@media (max-width: 768px) {
-		.roles-grid {
-			grid-template-columns: 1fr;
-		}
-
-		.task-meta {
-			grid-template-columns: 1fr;
-		}
-
-		.simulation-steps {
-			flex-direction: column;
-		}
-	}
-</style>
