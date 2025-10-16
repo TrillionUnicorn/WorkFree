@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+@layer base {
+  * {
+    border-color: rgb(148 163 184 / 0.2);
+  }
+
+  body {
+    @apply bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white antialiased;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+
+  a {
+    @apply transition-colors duration-300;
+  }
+
+  button {
+    @apply transition-all duration-300;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-400 via-secondary-400 to-accent-400 bg-clip-text text-transparent;
+  }
+
+  .bg-glass {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20;
+  }
+
+  .bg-glass-dark {
+    @apply bg-black/20 backdrop-blur-lg border border-white/10;
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px rgb(168 85 247 / 0.4);
+  }
+
+  .shadow-glow-lg {
+    box-shadow: 0 0 40px rgb(168 85 247 / 0.6);
+  }
+}
+
+
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-500;
+}
+
+/* Selection */
+::selection {
+  @apply bg-primary-500/30 text-white;
+}
+
