@@ -1,0 +1,29 @@
+{
+  "name": "workfree-production-4",
+  "version": "1.0.0",
+  "description": "WorkFree Production 4 - AI Edition with Machine Learning",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:prod": "vite build --mode production",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "playwright test",
+    "test:unit": "vitest",
+    "db:migrate": "drizzle-kit migrate:sqlite",
+    "deploy": "npm run build && wrangler pages deploy build"
+  },
+  "dependencies": {
+    "@lucia-auth/adapter-sqlite": "^3.0.0",
+    "bcrypt": "^5.1.1",
+    "drizzle-orm": "^0.29.0",
+    "lucia": "^3.0.0",
+    "stripe": "^14.0.0",
+    "resend": "^2.0.0",
+    "better-sqlite3": "^9.2.0",
+    "openai": "^4.0.0",
+    "tensorflow": "^4.0.0"
+  }
+}
+
