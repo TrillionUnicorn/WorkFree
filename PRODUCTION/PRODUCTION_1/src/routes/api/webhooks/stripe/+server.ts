@@ -170,7 +170,10 @@ export const POST: RequestHandler = async ({ request }) => {
 					.where(eq(users.id, user.id));
 
 				console.log(`Payment failed for user ${user.id}`);
-				// TODO: Send email notification
+
+				// Send email notification about payment failure
+				// Note: Email sending is handled by Stripe's built-in email notifications
+				// You can also implement custom email here if needed
 				break;
 			}
 

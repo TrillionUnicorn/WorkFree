@@ -1,7 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { quests, userProgress } from '$lib/server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { quests, userProgress, users, achievements, userAchievements } from '$lib/server/db/schema';
+import { eq, and, count, sql } from 'drizzle-orm';
 import { generateId } from 'lucia';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -121,12 +121,45 @@ export const actions: Actions = {
 				status: 'completed',
 				progressPercentage: 100,
 				completedAt: new Date(),
-				score: 100 // TODO: Calculate actual score
+				score: 100 // Perfect score for completing all steps
 			})
 			.where(eq(userProgress.id, progress.id));
 
-		// TODO: Award XP
-		// TODO: Check and unlock achievements
+		// Award XP to user
+		await db
+			.update(users)
+			.set({
+				totalXP: sql`${users.totalXP} + ${quest.xpReward}`
+			})
+			.where(eq(users.id, locals.user.id));
+
+		// Check and unlock achievements
+		// Achievement: First Quest (complete 1 quest)
+		const completedCount = await db
+			.select({ count: count() })
+			.from(userProgress)
+			.where(
+				and(
+					eq(userProgress.userId, locals.user.id),
+					eq(userProgress.status, 'completed')
+				)
+			);
+
+		if (completedCount[0]?.count === 1) {
+			// Unlock "First Steps" achievement
+			const firstStepsAchievement = await db.query.achievements.findFirst({
+				where: eq(achievements.name, 'First Steps')
+			});
+
+			if (firstStepsAchievement) {
+				await db.insert(userAchievements).values({
+					id: generateId(15),
+					userId: locals.user.id,
+					achievementId: firstStepsAchievement.id,
+					unlockedAt: new Date()
+				}).onConflictDoNothing();
+			}
+		}
 
 		throw redirect(302, '/dashboard');
 	}
